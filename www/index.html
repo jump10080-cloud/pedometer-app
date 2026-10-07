@@ -1,0 +1,1755 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a14">
+<title>قدم‌شمار</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-primary: #0a0a14;
+    --bg-secondary: #14142b;
+    --bg-card: rgba(30, 30, 60, 0.6);
+    --accent: #6c5ce7;
+    --accent-2: #00d9ff;
+    --accent-3: #ff6b9d;
+    --success: #00e676;
+    --warning: #ffab00;
+    --danger: #ff4757;
+    --text-primary: #ffffff;
+    --text-secondary: #8b8ba7;
+    --border: rgba(255, 255, 255, 0.08);
+    --shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    user-select: none;
+  }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  body {
+    font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(circle at 15% 15%, rgba(108, 92, 231, 0.25), transparent 45%),
+      radial-gradient(circle at 85% 85%, rgba(0, 217, 255, 0.18), transparent 45%),
+      radial-gradient(circle at 50% 50%, rgba(255, 107, 157, 0.08), transparent 60%);
+    z-index: -1;
+    animation: bgFloat 20s ease-in-out infinite;
+  }
+
+  @keyframes bgFloat {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    50% { transform: scale(1.15) rotate(180deg); }
+  }
+
+  .app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ========== Header ========== */
+  .app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: calc(env(safe-area-inset-top, 0px) + 16px) 20px 12px;
+    flex-shrink: 0;
+  }
+
+  .header-title h1 {
+    font-size: 18px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #fff 0%, #b8b8d1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header-title .date {
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 400;
+    display: block;
+    margin-top: 2px;
+  }
+
+  .sensor-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 12px var(--success);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .sensor-dot.off {
+    background: var(--warning);
+    box-shadow: 0 0 12px var(--warning);
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  /* ========== Content Area ========== */
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0 20px 20px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .content::-webkit-scrollbar { display: none; }
+
+  .tab-page {
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .tab-page.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ========== Home: Circle ========== */
+  .main-circle {
+    position: relative;
+    width: 100%;
+    max-width: 260px;
+    aspect-ratio: 1;
+    margin: 8px auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .progress-ring {
+    position: absolute;
+    inset: 0;
+    transform: rotate(-90deg);
+  }
+
+  .progress-ring circle {
+    fill: none;
+    stroke-linecap: round;
+  }
+
+  .progress-ring .track {
+    stroke: rgba(255, 255, 255, 0.06);
+    stroke-width: 12;
+  }
+
+  .progress-ring .progress {
+    stroke: url(#progressGradient);
+    stroke-width: 12;
+    transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: drop-shadow(0 0 12px rgba(108, 92, 231, 0.6));
+  }
+
+  .inner-circle {
+    position: absolute;
+    inset: 38px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(108, 92, 231, 0.15), rgba(10, 10, 20, 0.8) 70%);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    box-shadow:
+      inset 0 0 60px rgba(108, 92, 231, 0.15),
+      0 0 60px rgba(108, 92, 231, 0.2);
+  }
+
+  .steps-label {
+    font-size: 10px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+  }
+
+  .steps-count {
+    font-size: clamp(32px, 11vw, 44px);
+    font-weight: 800;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    background: linear-gradient(135deg, #ffffff 0%, #00d9ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    transition: transform 0.3s ease;
+  }
+
+  .steps-count.bump { transform: scale(1.08); }
+
+  .goal-text {
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+
+  .goal-text span {
+    color: var(--accent-2);
+    font-weight: 600;
+  }
+
+  /* ========== Stats Grid ========== */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 12px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .stat-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .stat-icon.distance { background: rgba(0, 217, 255, 0.15); color: var(--accent-2); }
+  .stat-icon.calories { background: rgba(255, 107, 157, 0.15); color: var(--accent-3); }
+  .stat-icon.time { background: rgba(0, 230, 118, 0.15); color: var(--success); }
+
+  .stat-icon svg { width: 14px; height: 14px; }
+
+  .stat-value {
+    font-size: 14px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-value small {
+    font-size: 9px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    margin-right: 2px;
+  }
+
+  .stat-label {
+    font-size: 9px;
+    color: var(--text-secondary);
+  }
+
+  /* ========== Chart ========== */
+  .chart-card {
+    background: var(--bg-card);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 14px;
+  }
+
+  .chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .chart-title {
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .chart-subtitle {
+    font-size: 10px;
+    color: var(--text-secondary);
+  }
+
+  .chart-bars {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 5px;
+    height: 80px;
+    padding-top: 6px;
+  }
+
+  .bar-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    height: 100%;
+    justify-content: flex-end;
+  }
+
+  .bar-track {
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 6px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .bar-fill {
+    width: 100%;
+    background: linear-gradient(180deg, var(--accent-2), var(--accent));
+    border-radius: 6px;
+    transition: height 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    min-height: 3px;
+  }
+
+  .bar-fill.today {
+    background: linear-gradient(180deg, var(--accent-3), var(--accent));
+  }
+
+  .bar-label {
+    font-size: 10px;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  .bar-label.today {
+    color: var(--accent-3);
+    font-weight: 700;
+  }
+
+  /* ========== History Page ========== */
+  .section-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .history-item {
+    background: var(--bg-card);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .history-item.today {
+    border-color: rgba(108, 92, 231, 0.4);
+    background: rgba(108, 92, 231, 0.12);
+  }
+
+  .history-label {
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .history-label.today { color: var(--accent-2); font-weight: 700; }
+
+  .history-steps {
+    font-size: 15px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-primary);
+  }
+
+  .history-steps small {
+    font-size: 10px;
+    color: var(--text-secondary);
+    font-weight: 400;
+    margin-right: 3px;
+  }
+
+  .stats-box {
+    background: var(--bg-card);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+
+  .stats-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    font-size: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .stats-row:last-child { border-bottom: none; }
+
+  .stats-row-label { color: var(--text-secondary); }
+
+  .stats-row-value {
+    font-weight: 700;
+    color: var(--accent-2);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ========== Goal Page ========== */
+  .goal-current {
+    background: linear-gradient(135deg, rgba(108, 92, 231, 0.25), rgba(0, 217, 255, 0.15));
+    border: 1px solid rgba(108, 92, 231, 0.4);
+    border-radius: 18px;
+    padding: 18px;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  .goal-current-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+  }
+
+  .goal-current-value {
+    font-size: 28px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #fff, var(--accent-2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .goal-current-value small {
+    font-size: 13px;
+    -webkit-text-fill-color: var(--text-secondary);
+    color: var(--text-secondary);
+    font-weight: 400;
+    margin-right: 4px;
+  }
+
+  .goal-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .goal-option {
+    background: var(--bg-card);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .goal-option:active {
+    transform: scale(0.95);
+    background: rgba(108, 92, 231, 0.15);
+  }
+
+  .goal-option.selected {
+    background: linear-gradient(135deg, rgba(108, 92, 231, 0.5), rgba(0, 217, 255, 0.3));
+    border-color: var(--accent);
+    box-shadow: 0 0 20px rgba(108, 92, 231, 0.4);
+  }
+
+  .goal-option small {
+    display: block;
+    font-size: 9px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+
+  .input-group {
+    margin-bottom: 12px;
+  }
+
+  .input-group label {
+    display: block;
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+
+  .input-group input {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    outline: none;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .input-group input:focus {
+    border-color: var(--accent);
+    background: rgba(108, 92, 231, 0.1);
+    box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.15);
+  }
+
+  .btn-primary {
+    width: 100%;
+    padding: 14px;
+    border-radius: 14px;
+    border: none;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: white;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 8px 20px rgba(108, 92, 231, 0.35);
+  }
+
+  .btn-primary:active {
+    transform: scale(0.97);
+    box-shadow: 0 4px 12px rgba(108, 92, 231, 0.5);
+  }
+
+  /* ========== Settings Page ========== */
+  .settings-section {
+    background: var(--bg-card);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+
+  .settings-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+
+  .settings-item:last-child { border-bottom: none; }
+
+  .settings-item:active {
+    background: rgba(108, 92, 231, 0.1);
+  }
+
+  .settings-item-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .settings-item-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(108, 92, 231, 0.15);
+    color: var(--accent-2);
+    flex-shrink: 0;
+  }
+
+  .settings-item-icon svg { width: 16px; height: 16px; }
+
+  .settings-item-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .settings-item-title {
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .settings-item-value {
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .settings-item-arrow {
+    color: var(--text-secondary);
+    font-size: 16px;
+    opacity: 0.6;
+  }
+
+  /* Toggle Switch */
+  .toggle {
+    position: relative;
+    width: 42px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    transition: background 0.3s ease;
+    flex-shrink: 0;
+  }
+
+  .toggle.on {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  }
+
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    width: 18px;
+    height: 18px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+
+  .toggle.on::after {
+    transform: translateX(-18px);
+  }
+
+  /* Radio Options */
+  .unit-options {
+    display: flex;
+    gap: 8px;
+    padding: 0 16px 14px;
+    margin-top: -4px;
+  }
+
+  .unit-option {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+    text-align: center;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--text-primary);
+    font-family: inherit;
+  }
+
+  .unit-option.selected {
+    background: rgba(108, 92, 231, 0.25);
+    border-color: var(--accent);
+    color: var(--accent-2);
+    font-weight: 700;
+  }
+
+  /* ========== Bottom Navigation ========== */
+  .bottom-nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 8px 12px calc(env(safe-area-inset-bottom, 0px) + 8px);
+    background: rgba(15, 15, 30, 0.85);
+    backdrop-filter: blur(30px);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .nav-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 8px 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    transition: all 0.25s ease;
+    position: relative;
+  }
+
+  .nav-btn svg {
+    width: 22px;
+    height: 22px;
+    transition: all 0.25s ease;
+  }
+
+  .nav-btn.active {
+    color: var(--accent-2);
+  }
+
+  .nav-btn.active svg {
+    filter: drop-shadow(0 0 8px rgba(0, 217, 255, 0.6));
+    transform: scale(1.1);
+  }
+
+  .nav-btn.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 24px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    border-radius: 0 0 4px 4px;
+  }
+
+  /* ========== Modal ========== */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 100;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .modal {
+    width: 100%;
+    max-width: 500px;
+    background: var(--bg-secondary);
+    border-radius: 28px 28px 0 0;
+    padding: 20px 20px calc(env(safe-area-inset-bottom, 0px) + 20px);
+    transform: translateY(100%);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid var(--border);
+    border-bottom: none;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+
+  .modal-overlay.active .modal {
+    transform: translateY(0);
+  }
+
+  .modal-handle {
+    width: 40px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    margin: 0 auto 16px;
+  }
+
+  .modal h2 {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .modal p {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+    line-height: 1.7;
+  }
+
+  .modal-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .btn-secondary {
+    padding: 13px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn-secondary:active {
+    transform: scale(0.97);
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  /* ========== Toast ========== */
+  .toast {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 16px);
+    left: 50%;
+    transform: translateX(-50%) translateY(-150%);
+    background: rgba(30, 30, 60, 0.98);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 12px 20px;
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 500;
+    z-index: 200;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 90%;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  .toast-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--success);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .toast-icon svg {
+    width: 12px;
+    height: 12px;
+    color: white;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-secondary);
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-title">
+      <h1>قدم‌شمار</h1>
+      <span class="date" id="currentDate"></span>
+    </div>
+    <span class="sensor-dot" id="sensorDot"></span>
+  </header>
+
+  <!-- Content -->
+  <main class="content">
+
+    <!-- ============ HOME ============ -->
+    <div class="tab-page active" id="page-home">
+      <div class="main-circle">
+        <svg class="progress-ring" viewBox="0 0 200 200">
+          <defs>
+            <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#00d9ff"/>
+              <stop offset="50%" stop-color="#6c5ce7"/>
+              <stop offset="100%" stop-color="#ff6b9d"/>
+            </linearGradient>
+          </defs>
+          <circle class="track" cx="100" cy="100" r="88"/>
+          <circle class="progress" id="progressCircle" cx="100" cy="100" r="88"
+                  stroke-dasharray="552.92" stroke-dashoffset="552.92"/>
+        </svg>
+        <div class="inner-circle">
+          <span class="steps-label">امروز</span>
+          <div class="steps-count" id="stepsCount">۰</div>
+          <span class="goal-text">هدف: <span id="goalDisplay">۱۰,۰۰۰</span></span>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-icon distance">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+          </div>
+          <div class="stat-value"><span id="distanceValue">۰</span><small>km</small></div>
+          <div class="stat-label">مسافت</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon calories">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+            </svg>
+          </div>
+          <div class="stat-value"><span id="caloriesValue">۰</span><small>kcal</small></div>
+          <div class="stat-label">کالری</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon time">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <div class="stat-value"><span id="timeValue">۰</span><small>دق</small></div>
+          <div class="stat-label">زمان فعال</div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">هفت روز اخیر</span>
+          <span class="chart-subtitle" id="weeklyTotal">مجموع: ۰</span>
+        </div>
+        <div class="chart-bars" id="chartBars"></div>
+      </div>
+    </div>
+
+    <!-- ============ HISTORY ============ -->
+    <div class="tab-page" id="page-history">
+      <div class="section-title">📅 تاریخچه</div>
+      <div class="history-list" id="historyList"></div>
+
+      <div class="section-title" style="margin-top:20px;">📊 نمودار ۳۰ روز</div>
+      <div class="chart-card">
+        <div class="chart-bars" id="monthlyChart" style="height:100px;"></div>
+      </div>
+
+      <div class="section-title" style="margin-top:20px;">🏆 آمار کلی</div>
+      <div class="stats-box" id="statsBox">
+        <div class="stats-row">
+          <span class="stats-row-label">مجموع کل</span>
+          <span class="stats-row-value" id="statTotal">۰</span>
+        </div>
+        <div class="stats-row">
+          <span class="stats-row-label">میانگین روزانه</span>
+          <span class="stats-row-value" id="statAverage">۰</span>
+        </div>
+        <div class="stats-row">
+          <span class="stats-row-label">بهترین روز</span>
+          <span class="stats-row-value" id="statBest">۰</span>
+        </div>
+        <div class="stats-row">
+          <span class="stats-row-label">تعداد روزهای ثبت‌شده</span>
+          <span class="stats-row-value" id="statDays">۰</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ GOAL ============ -->
+    <div class="tab-page" id="page-goal">
+      <div class="section-title">🎯 هدف روزانه</div>
+      
+      <div class="goal-current">
+        <div class="goal-current-label">هدف فعلی شما</div>
+        <div class="goal-current-value" id="currentGoalDisplay">۱۰,۰۰۰<small>قدم</small></div>
+      </div>
+
+      <div class="section-title" style="font-size:13px;">انتخاب سریع</div>
+      <div class="goal-grid" id="goalGrid">
+        <button class="goal-option" data-goal="3000">۳,۰۰۰<small>قدم</small></button>
+        <button class="goal-option" data-goal="5000">۵,۰۰۰<small>قدم</small></button>
+        <button class="goal-option" data-goal="7500">۷,۵۰۰<small>قدم</small></button>
+        <button class="goal-option" data-goal="10000">۱۰,۰۰۰<small>قدم</small></button>
+        <button class="goal-option" data-goal="12500">۱۲,۵۰۰<small>قدم</small></button>
+        <button class="goal-option" data-goal="15000">۱۵,۰۰۰<small>قدم</small></button>
+      </div>
+
+      <div class="section-title" style="font-size:13px;">یا وارد کنید</div>
+      <div class="input-group">
+        <input type="number" id="customGoalInput" placeholder="مثلاً ۸۰۰۰" min="100" max="100000">
+      </div>
+      <button class="btn-primary" id="saveGoalBtn">ذخیره هدف</button>
+    </div>
+
+    <!-- ============ SETTINGS ============ -->
+    <div class="tab-page" id="page-settings">
+      <div class="section-title">⚙️ تنظیمات</div>
+
+      <!-- Goal -->
+      <div class="settings-section">
+        <div class="settings-item" onclick="switchTab('goal')">
+          <div class="settings-item-left">
+            <div class="settings-item-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <circle cx="12" cy="12" r="6"/>
+                <circle cx="12" cy="12" r="2"/>
+              </svg>
+            </div>
+            <div class="settings-item-text">
+              <span class="settings-item-title">هدف روزانه</span>
+              <span class="settings-item-value" id="settingsGoal">۱۰,۰۰۰ قدم</span>
+            </div>
+          </div>
+          <span class="settings-item-arrow">‹</span>
+        </div>
+
+        <!-- Notifications -->
+        <div class="settings-item" id="notifToggle">
+          <div class="settings-item-left">
+            <div class="settings-item-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+              </svg>
+            </div>
+            <div class="settings-item-text">
+              <span class="settings-item-title">اعلان‌ها</span>
+              <span class="settings-item-value" id="notifStatus">فعال</span>
+            </div>
+          </div>
+          <div class="toggle on" id="notifToggleSwitch"></div>
+        </div>
+
+        <!-- Unit -->
+        <div class="settings-item" style="pointer-events:none;border-bottom:none;">
+          <div class="settings-item-left">
+            <div class="settings-item-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 12h20M12 2v20"/>
+                <circle cx="12" cy="12" r="10"/>
+              </svg>
+            </div>
+            <div class="settings-item-text">
+              <span class="settings-item-title">واحد مسافت</span>
+            </div>
+          </div>
+        </div>
+        <div class="unit-options">
+          <button class="unit-option selected" data-unit="km">کیلومتر</button>
+          <button class="unit-option" data-unit="mile">مایل</button>
+        </div>
+      </div>
+
+      <!-- User Info -->
+      <div class="settings-section">
+        <div class="settings-item" id="userInfoBtn">
+          <div class="settings-item-left">
+            <div class="settings-item-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+            <div class="settings-item-text">
+              <span class="settings-item-title">اطلاعات کاربر</span>
+              <span class="settings-item-value" id="userInfoValue">مشاهده و ویرایش</span>
+            </div>
+          </div>
+          <span class="settings-item-arrow">‹</span>
+        </div>
+      </div>
+
+      <!-- About -->
+      <div class="settings-section">
+        <div class="settings-item" id="aboutBtn">
+          <div class="settings-item-left">
+            <div class="settings-item-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="16" x2="12" y2="12"/>
+                <line x1="12" y1="8" x2="12.01" y2="8"/>
+              </svg>
+            </div>
+            <div class="settings-item-text">
+              <span class="settings-item-title">درباره برنامه</span>
+              <span class="settings-item-value">نسخه ۱.۰۰</span>
+            </div>
+          </div>
+          <span class="settings-item-arrow">‹</span>
+        </div>
+
+        <div class="settings-item" id="feedbackBtn">
+          <div class="settings-item-left">
+            <div class="settings-item-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+            </div>
+            <div class="settings-item-text">
+              <span class="settings-item-title">گزارش مشکل</span>
+              <span class="settings-item-value">ارسال بازخورد</span>
+            </div>
+          </div>
+          <span class="settings-item-arrow">‹</span>
+        </div>
+      </div>
+
+      <!-- Reset -->
+      <div class="settings-section">
+        <div class="settings-item" id="resetTodayBtn">
+          <div class="settings-item-left">
+            <div class="settings-item-icon" style="background: rgba(255, 71, 87, 0.15); color: var(--danger);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                <path d="M3 3v5h5"/>
+              </svg>
+            </div>
+            <div class="settings-item-text">
+              <span class="settings-item-title" style="color: var(--danger);">صفر کردن قدم‌های امروز</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-tab="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      <span>خانه</span>
+    </button>
+    <button class="nav-btn" data-tab="history">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 3v18h18"/>
+        <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/>
+      </svg>
+      <span>تاریخچه</span>
+    </button>
+    <button class="nav-btn" data-tab="goal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <circle cx="12" cy="12" r="6"/>
+        <circle cx="12" cy="12" r="2"/>
+      </svg>
+      <span>هدف</span>
+    </button>
+    <button class="nav-btn" data-tab="settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+      <span>تنظیمات</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ========== Modals ========== -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalContent">
+    <div class="modal-handle"></div>
+    <div id="modalBody"></div>
+    <div class="modal-actions" id="modalActions"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <div class="toast-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+  </div>
+  <span id="toastMsg">ذخیره شد</span>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ==================== Constants ====================
+  const STORAGE_KEY = 'pedometer_data_v1';
+  const SETTINGS_KEY = 'pedometer_settings_v1';
+  const SUPPORT_EMAIL = 'search250@gmail.com';
+  const CIRCUMFERENCE = 2 * Math.PI * 88;
+
+  // ==================== State ====================
+  const defaultSettings = {
+    goal: 10000,
+    height: 170,
+    weight: 70,
+    stepLength: 0.705, // meters
+    unit: 'km',
+    notifications: true,
+    name: ''
+  };
+
+  const defaultState = {
+    todaySteps: 0,
+    todayDate: getTodayKey(),
+    history: {}
+  };
+
+  let settings = loadJSON(SETTINGS_KEY, defaultSettings);
+  let state = loadJSON(STORAGE_KEY, defaultState);
+
+  // ==================== DOM ====================
+  const $ = (id) => document.getElementById(id);
+  const els = {
+    currentDate: $('currentDate'),
+    sensorDot: $('sensorDot'),
+    stepsCount: $('stepsCount'),
+    goalDisplay: $('goalDisplay'),
+    distanceValue: $('distanceValue'),
+    caloriesValue: $('caloriesValue'),
+    timeValue: $('timeValue'),
+    progressCircle: $('progressCircle'),
+    chartBars: $('chartBars'),
+    weeklyTotal: $('weeklyTotal'),
+    historyList: $('historyList'),
+    monthlyChart: $('monthlyChart'),
+    statTotal: $('statTotal'),
+    statAverage: $('statAverage'),
+    statBest: $('statBest'),
+    statDays: $('statDays'),
+    currentGoalDisplay: $('currentGoalDisplay'),
+    goalGrid: $('goalGrid'),
+    customGoalInput: $('customGoalInput'),
+    saveGoalBtn: $('saveGoalBtn'),
+    settingsGoal: $('settingsGoal'),
+    notifToggleSwitch: $('notifToggleSwitch'),
+    notifStatus: $('notifStatus'),
+    userInfoValue: $('userInfoValue'),
+    modalOverlay: $('modalOverlay'),
+    modalBody: $('modalBody'),
+    modalActions: $('modalActions'),
+    toast: $('toast'),
+    toastMsg: $('toastMsg')
+  };
+
+  // ==================== Utilities ====================
+  function getTodayKey() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+
+  function toFa(num) {
+    const fa = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+    return String(num).replace(/\d/g, d => fa[d]);
+  }
+
+  function formatNum(num) {
+    return toFa(Math.round(num).toLocaleString('en-US'));
+  }
+
+  function loadJSON(key, fallback) {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? { ...fallback, ...JSON.parse(raw) } : { ...fallback };
+    } catch (e) {
+      return { ...fallback };
+    }
+  }
+
+  function saveState() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){}
+  }
+
+  function saveSettings() {
+    try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch(e){}
+  }
+
+  // ==================== Daily Reset ====================
+  function checkDailyReset() {
+    const today = getTodayKey();
+    if (state.todayDate !== today) {
+      if (state.todaySteps > 0) {
+        state.history[state.todayDate] = state.todaySteps;
+      }
+      state.todaySteps = 0;
+      state.todayDate = today;
+      saveState();
+    }
+  }
+
+  // ==================== Calculations ====================
+  function calcDistance(steps) {
+    const km = (steps * settings.stepLength) / 1000;
+    return settings.unit === 'mile' ? km * 0.621371 : km;
+  }
+
+  function calcCalories(steps) {
+    const weightFactor = settings.weight / 70;
+    return Math.round(steps * 0.04 * weightFactor);
+  }
+
+  function calcActiveTime(steps) {
+    return Math.round(steps / 110);
+  }
+
+  function getDistanceUnit() {
+    return settings.unit === 'mile' ? 'mi' : 'km';
+  }
+
+  // ==================== Render ====================
+  function render() {
+    const steps = state.todaySteps;
+    const goal = settings.goal;
+    const progress = Math.min(steps / goal, 1);
+
+    // Steps
+    els.stepsCount.textContent = formatNum(steps);
+    els.goalDisplay.textContent = formatNum(goal);
+
+    // Progress ring
+    els.progressCircle.style.strokeDashoffset = CIRCUMFERENCE * (1 - progress);
+
+    // Stats
+    els.distanceValue.textContent = toFa(calcDistance(steps).toFixed(2));
+    els.caloriesValue.textContent = formatNum(calcCalories(steps));
+    els.timeValue.textContent = formatNum(calcActiveTime(steps));
+
+    // Weekly chart
+    renderWeeklyChart();
+    renderMonthlyChart();
+    renderHistory();
+    renderStats();
+
+    // Settings values
+    els.settingsGoal.textContent = formatNum(settings.goal) + ' قدم';
+    els.currentGoalDisplay.innerHTML = formatNum(settings.goal) + '<small>قدم</small>';
+    document.querySelectorAll('.goal-option').forEach(btn => {
+      btn.classList.toggle('selected', parseInt(btn.dataset.goal) === settings.goal);
+    });
+    document.querySelectorAll('.unit-option').forEach(btn => {
+      btn.classList.toggle('selected', btn.dataset.unit === settings.unit);
+    });
+  }
+
+  function renderWeeklyChart() {
+    const days = ['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج'];
+    const today = new Date();
+    const todayKey = getTodayKey();
+    const bars = [];
+    let weeklySum = 0;
+    const maxVal = Math.max(settings.goal, 1);
+
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      const isToday = key === todayKey;
+      const steps = isToday ? state.todaySteps : (state.history[key] || 0);
+      weeklySum += steps;
+      const heightPercent = Math.min((steps / maxVal) * 100, 100);
+      const persianDayIndex = (d.getDay() + 1) % 7;
+      bars.push({
+        label: days[persianDayIndex],
+        height: heightPercent,
+        isToday
+      });
+    }
+
+    els.chartBars.innerHTML = bars.map(b => `
+      <div class="bar-wrapper">
+        <div class="bar-track">
+          <div class="bar-fill ${b.isToday ? 'today' : ''}" style="height: ${Math.max(b.height, 4)}%"></div>
+        </div>
+        <span class="bar-label ${b.isToday ? 'today' : ''}">${b.label}</span>
+      </div>
+    `).join('');
+
+    els.weeklyTotal.textContent = `مجموع: ${formatNum(weeklySum)}`;
+  }
+
+  function renderMonthlyChart() {
+    const today = new Date();
+    const todayKey = getTodayKey();
+    const bars = [];
+    const maxVal = Math.max(settings.goal, 1);
+
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      const isToday = key === todayKey;
+      const steps = isToday ? state.todaySteps : (state.history[key] || 0);
+      const heightPercent = Math.min((steps / maxVal) * 100, 100);
+      bars.push({ height: heightPercent, isToday });
+    }
+
+    els.monthlyChart.innerHTML = bars.map((b, i) => `
+      <div class="bar-wrapper" style="gap:2px;">
+        <div class="bar-track" style="border-radius:3px;">
+          <div class="bar-fill ${b.isToday ? 'today' : ''}" style="height: ${Math.max(b.height, 3)}%; border-radius:3px;"></div>
+        </div>
+        ${(i % 5 === 0 || i === bars.length - 1) ? '<span class="bar-label" style="font-size:8px;">' + toFa(29 - i) + '</span>' : '<span style="height:11px;"></span>'}
+      </div>
+    `).join('');
+  }
+
+  function renderHistory() {
+    const today = new Date();
+    const items = [];
+    const labels = ['امروز', 'دیروز', 'پریروز'];
+
+    for (let i = 0; i < 3; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      const isToday = i === 0;
+      const steps = isToday ? state.todaySteps : (state.history[key] || 0);
+      items.push({ label: labels[i], steps, isToday });
+    }
+
+    els.historyList.innerHTML = items.map(item => `
+      <div class="history-item ${item.isToday ? 'today' : ''}">
+        <span class="history-label ${item.isToday ? 'today' : ''}">${item.label}</span>
+        <span class="history-steps">${formatNum(item.steps)}<small>قدم</small></span>
+      </div>
+    `).join('');
+  }
+
+  function renderStats() {
+    const historyValues = Object.values(state.history);
+    const allValues = [...historyValues, state.todaySteps].filter(v => v > 0);
+    const total = allValues.reduce((a, b) => a + b, 0);
+    const average = allValues.length > 0 ? Math.round(total / allValues.length) : 0;
+    const best = allValues.length > 0 ? Math.max(...allValues) : 0;
+
+    els.statTotal.textContent = formatNum(total) + ' قدم';
+    els.statAverage.textContent = formatNum(average) + ' قدم';
+    els.statBest.textContent = formatNum(best) + ' قدم';
+    els.statDays.textContent = toFa(allValues.length) + ' روز';
+  }
+
+  function renderDate() {
+    try {
+      const dateStr = new Intl.DateTimeFormat('fa-IR', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+      }).format(new Date());
+      els.currentDate.textContent = dateStr;
+    } catch (e) {
+      els.currentDate.textContent = new Date().toLocaleDateString('fa-IR');
+    }
+  }
+
+  // ==================== Tab Switching ====================
+  function switchTab(tabName) {
+    document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    
+    const page = $('page-' + tabName);
+    const btn = document.querySelector(`.nav-btn[data-tab="${tabName}"]`);
+    if (page) page.classList.add('active');
+    if (btn) btn.classList.add('active');
+    
+    const content = document.querySelector('.content');
+    if (content) content.scrollTop = 0;
+  }
+
+  window.switchTab = switchTab;
+
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+  });
+
+  // ==================== Toast ====================
+  let toastTimeout = null;
+  function showToast(msg) {
+    els.toastMsg.textContent = msg;
+    els.toast.classList.add('show');
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => els.toast.classList.remove('show'), 2200);
+  }
+
+  // ==================== Modal ====================
+  function openModal(bodyHTML, actionsHTML) {
+    els.modalBody.innerHTML = bodyHTML;
+    els.modalActions.innerHTML = actionsHTML || '';
+    els.modalOverlay.classList.add('active');
+  }
+
+  function closeModal() {
+    els.modalOverlay.classList.remove('active');
+  }
+
+  window.closeModal = closeModal;
+
+  els.modalOverlay.addEventListener('click', (e) => {
+    if (e.target === els.modalOverlay) closeModal();
+  });
+
+  // ==================== Goal Page ====================
+  document.querySelectorAll('.goal-option').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const goal = parseInt(btn.dataset.goal);
+      settings.goal = goal;
+      saveSettings();
+      render();
+      showToast('هدف ذخیره شد: ' + formatNum(goal) + ' قدم');
+    });
+  });
+
+  els.saveGoalBtn.addEventListener('click', () => {
+    const val = parseInt(els.customGoalInput.value);
+    if (!val || val < 100 || val > 100000) {
+      showToast('عدد بین ۱۰۰ تا ۱۰۰,۰۰۰ وارد کنید');
+      return;
+    }
+    settings.goal = val;
+    saveSettings();
+    render();
+    els.customGoalInput.value = '';
+    showToast('هدف ذخیره شد: ' + formatNum(val) + ' قدم');
+  });
+
+  // ==================== Unit Selection ====================
+  document.querySelectorAll('.unit-option').forEach(btn => {
+    btn.addEventListener('click', () => {
+      settings.unit = btn.dataset.unit;
+      saveSettings();
+      render();
+      showToast('واحد: ' + (settings.unit === 'km' ? 'کیلومتر' : 'مایل'));
+    });
+  });
+
+  // ==================== Notifications Toggle ====================
+  document.querySelector('#notifToggle').addEventListener('click', () => {
+    settings.notifications = !settings.notifications;
+    saveSettings();
+    els.notifToggleSwitch.classList.toggle('on', settings.notifications);
+    els.notifStatus.textContent = settings.notifications ? 'فعال' : 'غیرفعال';
+    showToast(settings.notifications ? 'اعلان‌ها فعال شد' : 'اعلان‌ها غیرفعال شد');
+  });
+
+  // ==================== User Info Modal ====================
+  $('userInfoBtn').addEventListener('click', () => {
+    const html = `
+      <h2>اطلاعات کاربر</h2>
+      <p>برای محاسبه دقیق کالری و مسافت، اطلاعات خود را وارد کنید.</p>
+      <div class="input-group">
+        <label>نام (اختیاری)</label>
+        <input type="text" id="inputName" value="${settings.name || ''}" placeholder="مثلاً علی">
+      </div>
+      <div class="input-group">
+        <label>قد (سانتی‌متر)</label>
+        <input type="number" id="inputHeight" value="${settings.height}" min="100" max="250">
+      </div>
+      <div class="input-group">
+        <label>وزن (کیلوگرم)</label>
+        <input type="number" id="inputWeight" value="${settings.weight}" min="30" max="200">
+      </div>
+    `;
+    const actions = `
+      <button class="btn-secondary" onclick="closeModal()">انصراف</button>
+      <button class="btn-primary" id="modalSaveUser">ذخیره</button>
+    `;
+    openModal(html, actions);
+
+    $('modalSaveUser').addEventListener('click', () => {
+      settings.name = $('inputName').value.trim();
+      settings.height = Math.max(100, Math.min(250, parseInt($('inputHeight').value) || 170));
+      settings.weight = Math.max(30, Math.min(200, parseInt($('inputWeight').value) || 70));
+      settings.stepLength = (settings.height * 0.415) / 100;
+      saveSettings();
+      render();
+      closeModal();
+      showToast('اطلاعات ذخیره شد');
+    });
+  });
+
+  // ==================== About Modal ====================
+  $('aboutBtn').addEventListener('click', () => {
+    const html = `
+      <h2>درباره برنامه</h2>
+      <p>قدم‌شمار حرفه‌ای با دقت بالا که از سنسور سخت‌افزاری گوشی استفاده می‌کند و در پس‌زمینه بدون مصرف زیاد باتری کار می‌کند.</p>
+      <div style="text-align:center; padding: 20px 0;">
+        <div style="font-size: 48px; margin-bottom: 10px;">🏃</div>
+        <div style="font-size: 18px; font-weight: 700; margin-bottom: 4px;">قدم‌شمار</div>
+        <div style="font-size: 12px; color: var(--text-secondary);">نسخه ۱.۰۰</div>
+      </div>
+      <p style="text-align: center; font-size: 11px;">ساخته شده با ❤️ برای سلامتی شما</p>
+    `;
+    const actions = `<button class="btn-primary" onclick="closeModal()" style="grid-column: span 2;">بستن</button>`;
+    openModal(html, actions);
+  });
+
+  // ==================== Feedback Modal ====================
+  $('feedbackBtn').addEventListener('click', () => {
+    const subject = encodeURIComponent('گزارش مشکل - قدم‌شمار');
+    const body = encodeURIComponent('سلام،\n\nتوضیحات مشکل:\n\n\n---\nاطلاعات فنی:\nنسخه: ۱.۰۰\nمرورگر: ' + navigator.userAgent);
+    window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
+  });
+
+  // ==================== Reset Today ====================
+  $('resetTodayBtn').addEventListener('click', () => {
+    const html = `
+      <h2>صفر کردن قدم‌های امروز</h2>
+      <p>آیا مطمئن هستید؟ این عمل قابل بازگشت نیست.</p>
+    `;
+    const actions = `
+      <button class="btn-secondary" onclick="closeModal()">انصراف</button>
+      <button class="btn-primary" id="modalConfirmReset" style="background: linear-gradient(135deg, #ff4757, #ff6b9d);">بله، صفر کن</button>
+    `;
+    openModal(html, actions);
+
+    $('modalConfirmReset').addEventListener('click', () => {
+      state.todaySteps = 0;
+      saveState();
+      if (window.StepCounter && window.StepCounter.resetToday) {
+        window.StepCounter.resetToday().catch(() => {});
+      }
+      render();
+      closeModal();
+      showToast('قدم‌های امروز صفر شد');
+    });
+  });
+
+  // ==================== Step Counter Integration ====================
+  const StepCounter = window.Capacitor?.Plugins?.StepCounter;
+
+  async function initStepCounter() {
+    if (!StepCounter) {
+      console.log('⚠️ حالت وب - پلاگین بومی موجود نیست');
+      els.sensorDot.classList.add('off');
+      initWebFallback();
+      return;
+    }
+
+    try {
+      await StepCounter.start();
+      const result = await StepCounter.getTodaySteps();
+      state.todaySteps = result.steps || 0;
+      render();
+
+      StepCounter.addListener('stepUpdate', (data) => {
+        if (data.steps > state.todaySteps) {
+          els.stepsCount.classList.add('bump');
+          setTimeout(() => els.stepsCount.classList.remove('bump'), 200);
+          if (navigator.vibrate) navigator.vibrate(8);
+        }
+        state.todaySteps = data.steps;
+        render();
+      });
+
+      const historyData = await StepCounter.getHistory();
+      if (historyData.history) {
+        state.history = historyData.history;
+        render();
+      }
+
+      els.sensorDot.classList.remove('off');
+      console.log('✅ قدم‌شمار بومی فعال شد');
+    } catch (err) {
+      console.error('خطا:', err);
+      els.sensorDot.classList.add('off');
+      initWebFallback();
+    }
+  }
+
+  function initWebFallback() {
+    // شبیه‌سازی برای تست در مرورگر
+    console.log('حالت تست وب - قدم‌ها با کلیک شبیه‌سازی می‌شوند');
+    window.__addStep = () => {
+      state.todaySteps++;
+      saveState();
+      render();
+    };
+  }
+
+  // ==================== Visibility & Auto Update ====================
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      checkDailyReset();
+      render();
+      renderDate();
+    }
+  });
+
+  // ==================== Init ====================
+  function init() {
+    checkDailyReset();
+    settings.stepLength = (settings.height * 0.415) / 100;
+    renderDate();
+    render();
+    initStepCounter();
+
+    els.notifToggleSwitch.classList.toggle('on', settings.notifications);
+    els.notifStatus.textContent = settings.notifications ? 'فعال' : 'غیرفعال';
+
+    setInterval(() => {
+      checkDailyReset();
+      render();
+    }, 60000);
+
+    setInterval(renderDate, 3600000);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+  window.__pedometer = {
+    getState: () => state,
+    getSettings: () => settings,
+    addStep: () => { state.todaySteps++; saveState(); render(); },
+    reset: () => { state.todaySteps = 0; saveState(); render(); }
+  };
+
+})();
+</script>
+</body>
+</html>

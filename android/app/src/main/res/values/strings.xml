@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">PedometerApp</string>
+    <string name="title_activity_main">PedometerApp</string>
+    <string name="package_name">com.pedometer.app</string>
+    <string name="custom_url_scheme">com.pedometer.app</string>
+</resources>
